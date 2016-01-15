@@ -3,7 +3,7 @@ authors = ["Stephan Buys <stephan.buys@panoptix.co.za>"]
 name = "nix-netconfig"
 description = "A Rust library for manipulating network configuration of *nix systems"
 repository = "https://github.com/panoptix-za/nix-config"
-keywords = ["conf", "configuration", "systemd", "cfg", "config", "arch", "linux"]
+keywords = ["systemd", "cfg", "config", "arch", "linux"]
 version = "0.1.0"
 license = "MIT"
 
