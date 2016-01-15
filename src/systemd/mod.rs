@@ -22,15 +22,15 @@
     }
 
     //FIXME: This is probably wrong, but at least its descriptive
-    type ValidationErrorString = &'static str;
+    pub type ValidationErrorString = &'static str;
 
     #[derive(Debug)]
-    enum StaticIPError {
+    pub enum StaticIPError {
         Io(io::Error),
         Validation(ValidationErrorString),
     }
 
-    trait NetworkConfigLoader {
+    pub trait NetworkConfigLoader {
 
         fn new(path: &'static str) -> Self;
 
@@ -84,7 +84,7 @@
         return s;
     }
 
-    struct SystemdNetworkConfig<'a> {
+    pub struct SystemdNetworkConfig<'a> {
         path: &'a Path
     }
 
@@ -359,4 +359,3 @@
         assert!(config.static_ip("192.168.1.3/31","192.168.1.1").is_ok());
 
     }
-
