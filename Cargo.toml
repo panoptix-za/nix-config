@@ -12,6 +12,6 @@ regex = "0.1.46"
 rust-ini = "0.9.2"
 
 [lib]
-name = "nix-netconfig"
+name = "nix_netconfig"
 test = true
 
