@@ -1,0 +1,9 @@
+[package]
+authors = ["Stephan Buys <stephan.buys@panoptix.co.za>"]
+name = "nix-netconfig"
+version = "0.1.0"
+license = "MIT"
+
+[dependencies]
+regex = "0.1.46"
+rust-ini = "0.9.2"

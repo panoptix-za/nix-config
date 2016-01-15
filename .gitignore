@@ -1,0 +1,4 @@
+target
+tests/eth0.network.static.test
+tests/eth0.network.dhcp.test
+tests/eth0.network.dhcp.validation
