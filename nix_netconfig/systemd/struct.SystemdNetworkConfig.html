@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `SystemdNetworkConfig` struct in crate `nix_netconfig`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, SystemdNetworkConfig">
+
+    <title>nix_netconfig::systemd::SystemdNetworkConfig - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>nix_netconfig</a>::<wbr><a href='index.html'>systemd</a></p><script>window.sidebarCurrent = {name: 'SystemdNetworkConfig', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>nix_netconfig</a>::<wbr><a href='index.html'>systemd</a>::<wbr><a class='struct' href=''>SystemdNetworkConfig</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-77' class='srclink' href='../../src/nix_netconfig/systemd/mod.rs.html#83-85' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct SystemdNetworkConfig&lt;'a&gt; {
+    // some fields omitted
+}</pre><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html' title='nix_netconfig::systemd::NetworkConfigLoader'>NetworkConfigLoader</a> for <a class='struct' href='../../nix_netconfig/systemd/struct.SystemdNetworkConfig.html' title='nix_netconfig::systemd::SystemdNetworkConfig'>SystemdNetworkConfig</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html#method.new' class='fnname'>new</a>(path: &amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../../nix_netconfig/systemd/struct.SystemdNetworkConfig.html' title='nix_netconfig::systemd::SystemdNetworkConfig'>SystemdNetworkConfig</a></code></h4>
+<h4 id='method.is_dhcp' class='method'><code>fn <a href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html#method.is_dhcp' class='fnname'>is_dhcp</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.get_settings_section' class='method'><code>fn <a href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html#method.get_settings_section' class='fnname'>get_settings_section</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</code></h4>
+<h4 id='method.ip_addres' class='method'><code>fn <a href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html#method.ip_addres' class='fnname'>ip_addres</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../nix_netconfig/systemd/struct.IPv4Network.html' title='nix_netconfig::systemd::IPv4Network'>IPv4Network</a>&gt;</code></h4>
+<h4 id='method.gateway' class='method'><code>fn <a href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html#method.gateway' class='fnname'>gateway</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/net/ip/struct.Ipv4Addr.html' title='std::net::ip::Ipv4Addr'>Ipv4Addr</a>&gt;</code></h4>
+<h4 id='method.dns' class='method'><code>fn <a href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html#method.dns' class='fnname'>dns</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/net/ip/struct.Ipv4Addr.html' title='std::net::ip::Ipv4Addr'>Ipv4Addr</a>&gt;&gt;</code></h4>
+<h4 id='method.enable_dhcp' class='method'><code>fn <a href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html#method.enable_dhcp' class='fnname'>enable_dhcp</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html' title='std::io::error::Error'>Error</a>&gt;</code></h4>
+<h4 id='method.static_ip' class='method'><code>fn <a href='../../nix_netconfig/systemd/trait.NetworkConfigLoader.html#method.static_ip' class='fnname'>static_ip</a>(&amp;self, address: &amp;<a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, gateway: &amp;<a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../nix_netconfig/systemd/enum.StaticIPError.html' title='nix_netconfig::systemd::StaticIPError'>StaticIPError</a>&gt;</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "nix_netconfig";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script async src="../../search-index.js"></script>
+</body>
+</html>
