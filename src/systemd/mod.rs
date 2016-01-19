@@ -32,7 +32,7 @@ pub trait NetworkConfigLoader {
 
     fn is_dhcp(&self) -> bool;
 
-    fn ip_addres(&self) -> Option<IPv4Network>;
+    fn ip_address(&self) -> Option<IPv4Network>;
 
     fn gateway(&self) -> Option<Ipv4Addr>;
 
@@ -123,7 +123,7 @@ impl<'a> NetworkConfigLoader for SystemdNetworkConfig<'a> {
         };
     }
 
-    fn ip_addres(&self) -> Option<IPv4Network> {
+    fn ip_address(&self) -> Option<IPv4Network> {
         let content = self.get_settings_section().unwrap_or(String::new());
         //FIXME: This regex will only work on the first address
         let re = Regex::new(r"Address=(?P<address>[^/]+)\b/\b(?P<network>(?:3[0-2]|[12][0-9]|[1-9]))\b").unwrap();
@@ -217,7 +217,7 @@ impl<'a> NetworkConfigLoader for UbuntuUpstartNetworkConfig<'a> {
         unreachable!("Not implemented yet");
     }
 
-    fn ip_addres(&self) -> Option<IPv4Network> {
+    fn ip_address(&self) -> Option<IPv4Network> {
         unreachable!("Not implemented yet");
     }
 
@@ -290,7 +290,7 @@ fn read_non_dhcp_config_systemd() {
 fn read_static_config_systemd() {
     let config = SystemdNetworkConfig::new("./tests/eth0.network.static");
     let comparitor_ip = Ipv4Addr::from_str("192.168.1.3").unwrap();
-    let ip_address = config.ip_addres().expect("No ip address found");
+    let ip_address = config.ip_address().expect("No ip address found");
     assert!(ip_address.ip == comparitor_ip);
     assert!(ip_address.prefix == 24);
 
@@ -332,7 +332,7 @@ fn static_ip_systemd() {
     assert!(config.is_dhcp() == false);
 
     let comparitor_ip = Ipv4Addr::from_str("192.168.1.3").unwrap();
-    let ip_address = config.ip_addres().expect("No ip address found");
+    let ip_address = config.ip_address().expect("No ip address found");
     assert!(ip_address.ip == comparitor_ip);
     assert!(ip_address.prefix == 24);
 
