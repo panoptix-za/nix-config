@@ -5,7 +5,7 @@ description = "A Rust library for manipulating network configuration of *nix sys
 documentation = "http://panoptix-za.github.io/nix-config/doc/nix_netconfig/index.html"
 repository = "https://github.com/panoptix-za/nix-config"
 keywords = ["systemd", "cfg", "config", "arch", "linux"]
-version = "0.1.1"
+version = "0.1.2"
 license = "MIT"
 
 [dependencies]

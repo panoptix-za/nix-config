@@ -12,6 +12,8 @@ use std::net::Ipv4Addr;
 use std::str::FromStr;
 use std::path::Path;
 
+//FIXME: Handle unwrap() - try not to use in library
+
 pub struct IPv4Network {
     pub ip: Ipv4Addr,
     pub prefix: u8
@@ -38,7 +40,7 @@ pub trait NetworkConfigLoader {
 
     fn get_settings_section(&self) -> Option<String>;
 
-    fn dns(&self) -> Option<Vec<Ipv4Addr>>;
+    fn dns(&self) -> Vec<Ipv4Addr>;
 
     fn enable_dhcp(&self) -> Result<(), io::Error>;
 
@@ -56,28 +58,28 @@ fn ip_from_match(address_match: Option<&str>, network_match: Option<&str> ) -> O
                 Ok(address) => {
                     return Some(IPv4Network{ ip: address, prefix: network })
                 }
-                Err(why) => {
-                    panic!("Could not parse {} into IP address, reason: {}", result, why);
+                Err(_) => {
+                    return None
                 }
             }
-
-
         },
-        None => { return None },
+        None => None
     }
 }
 
-fn read_to_string(path: &Path) -> String {
+fn read_to_string(path: &Path) -> Result<String,io::Error> {
     let display = path.display();
     let mut file = match File::open(path) {
-        Err(why) => panic!("couldn't open {}: {}", display, Error::description(&why)),
+        Err(why) => return Err(why),
         Ok(file) => file,
     };
 
     let mut s = String::new();
+
     //FIXME: Add the name of the file in the expect clause
     file.read_to_string(&mut s).ok().expect("Could not read file");
-    return s;
+
+    Ok(s)
 }
 
 pub struct SystemdNetworkConfig<'a> {
@@ -96,22 +98,20 @@ impl<'a> NetworkConfigLoader for SystemdNetworkConfig<'a> {
         SystemdNetworkConfig { path: Path::new(path) }
     }
 
+
     fn is_dhcp(&self) -> bool {
         let conf = Ini::load_from_file(self.path.to_str().expect("Could to parse path")).unwrap();
 
         let section = conf.section(Some("Network".to_owned())).unwrap();
-        let dhcp = String::new();
-        let dhcp = match section.get("DHCP") {
-            Some(value) => dhcp + value,
-            None => String::new()
-        };
+
+        let dhcp = section.get("DHCP").map_or("", |s| &s[..]);
 
         let re = Regex::new(r"(both|yes|ipv4|ipv6)").unwrap();
-        return re.is_match(&dhcp[..])
+        return re.is_match(dhcp)
     }
 
     fn get_settings_section(&self) -> Option<String> {
-        let content = read_to_string(self.path);
+        let content = read_to_string(self.path).unwrap_or("".to_string());
         let re = Regex::new(r"(?P<settings_section>\[Network\][^\[\0]+)").unwrap();
         return match re.captures(&content[..]) {
             Some(matched) => {
@@ -146,22 +146,20 @@ impl<'a> NetworkConfigLoader for SystemdNetworkConfig<'a> {
         };
     }
 
-    fn dns(&self) -> Option<Vec<Ipv4Addr>> {
+    fn dns(&self) -> Vec<Ipv4Addr> {
         let content = self.get_settings_section().unwrap_or(String::new());
         let re = Regex::new(r"DNS=(?P<address>[\d.]+)").unwrap();
-        let mut dns_servers: Vec<Ipv4Addr> = Vec::new();
-        for cap in re.captures_iter(&content[..]) {
-            let ip_address = ip_from_match(cap.name("address"),Some("0"));
-            match ip_address {
-                Some(address) => dns_servers.push(address.ip),
-                None => continue
+
+        let dns_servers = re.captures_iter(&content[..]).filter_map(|cap| {
+
+            match ip_from_match(cap.name("address"),Some("0")) {
+                Some(ip_struct) => Some(ip_struct.ip),
+                None => None
             }
 
-        }
-        if dns_servers.len() > 0 {
-            return Some(dns_servers)
-        }
-        None
+        }).collect::<Vec<Ipv4Addr>>();
+
+        dns_servers
     }
 
     fn enable_dhcp(&self) -> Result<(), io::Error>  {
@@ -229,7 +227,7 @@ impl<'a> NetworkConfigLoader for UbuntuUpstartNetworkConfig<'a> {
         unreachable!("Not implemented yet");
     }
 
-    fn dns(&self) -> Option<Vec<Ipv4Addr>> {
+    fn dns(&self) -> Vec<Ipv4Addr> {
        unreachable!("Not implemented yet");
     }
 
@@ -301,14 +299,14 @@ fn read_static_config_systemd() {
 #[test]
 fn read_dns_config_systemd() {
     let config = SystemdNetworkConfig::new("./tests/eth0.network.static_with_dns");
-    let dns_servers = config.dns().unwrap_or(Vec::new());
+    let dns_servers = config.dns();
     assert!(dns_servers.len() == 4);
 }
 
 #[test]
 fn read_no_dns_config_systemd() {
     let config = SystemdNetworkConfig::new("./tests/eth0.network.static");
-    let dns_servers = config.dns().unwrap_or(Vec::new());
+    let dns_servers = config.dns();
     assert!(dns_servers.len() == 0);
 }
 
