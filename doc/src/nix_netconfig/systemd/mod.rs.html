@@ -395,8 +395,6 @@
 <span id="353">353</span>
 <span id="354">354</span>
 <span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
 </pre><pre class='rust '>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>regex</span>;
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>ini</span>;
@@ -411,6 +409,8 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>net</span>::<span class='ident'>Ipv4Addr</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>str</span>::<span class='ident'>FromStr</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>path</span>::<span class='ident'>Path</span>;
+
+<span class='comment'>//FIXME: Handle unwrap() - try not to use in library</span>
 
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>IPv4Network</span> {
     <span class='kw'>pub</span> <span class='ident'>ip</span>: <span class='ident'>Ipv4Addr</span>,
@@ -432,13 +432,13 @@
 
     <span class='kw'>fn</span> <span class='ident'>is_dhcp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
 
-    <span class='kw'>fn</span> <span class='ident'>ip_addres</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>IPv4Network</span><span class='op'>&gt;</span>;
+    <span class='kw'>fn</span> <span class='ident'>ip_address</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>IPv4Network</span><span class='op'>&gt;</span>;
 
     <span class='kw'>fn</span> <span class='ident'>gateway</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;</span>;
 
     <span class='kw'>fn</span> <span class='ident'>get_settings_section</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>;
 
-    <span class='kw'>fn</span> <span class='ident'>dns</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;&gt;</span>;
+    <span class='kw'>fn</span> <span class='ident'>dns</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;</span>;
 
     <span class='kw'>fn</span> <span class='ident'>enable_dhcp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>io</span>::<span class='ident'>Error</span><span class='op'>&gt;</span>;
 
@@ -456,28 +456,28 @@
                 <span class='prelude-val'>Ok</span>(<span class='ident'>address</span>) <span class='op'>=&gt;</span> {
                     <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>IPv4Network</span>{ <span class='ident'>ip</span>: <span class='ident'>address</span>, <span class='ident'>prefix</span>: <span class='ident'>network</span> })
                 }
-                <span class='prelude-val'>Err</span>(<span class='ident'>why</span>) <span class='op'>=&gt;</span> {
-                    <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Could not parse {} into IP address, reason: {}&quot;</span>, <span class='ident'>result</span>, <span class='ident'>why</span>);
+                <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> {
+                    <span class='kw'>return</span> <span class='prelude-val'>None</span>
                 }
             }
-
-
         },
-        <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> { <span class='kw'>return</span> <span class='prelude-val'>None</span> },
+        <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
     }
 }
 
-<span class='kw'>fn</span> <span class='ident'>read_to_string</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>) <span class='op'>-&gt;</span> <span class='ident'>String</span> {
+<span class='kw'>fn</span> <span class='ident'>read_to_string</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>String</span>,<span class='ident'>io</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> {
     <span class='kw'>let</span> <span class='ident'>display</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>display</span>();
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>file</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>File</span>::<span class='ident'>open</span>(<span class='ident'>path</span>) {
-        <span class='prelude-val'>Err</span>(<span class='ident'>why</span>) <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;couldn&#39;t open {}: {}&quot;</span>, <span class='ident'>display</span>, <span class='ident'>Error</span>::<span class='ident'>description</span>(<span class='kw-2'>&amp;</span><span class='ident'>why</span>)),
+        <span class='prelude-val'>Err</span>(<span class='ident'>why</span>) <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>why</span>),
         <span class='prelude-val'>Ok</span>(<span class='ident'>file</span>) <span class='op'>=&gt;</span> <span class='ident'>file</span>,
     };
 
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>String</span>::<span class='ident'>new</span>();
+
     <span class='comment'>//FIXME: Add the name of the file in the expect clause</span>
     <span class='ident'>file</span>.<span class='ident'>read_to_string</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>s</span>).<span class='ident'>ok</span>().<span class='ident'>expect</span>(<span class='string'>&quot;Could not read file&quot;</span>);
-    <span class='kw'>return</span> <span class='ident'>s</span>;
+
+    <span class='prelude-val'>Ok</span>(<span class='ident'>s</span>)
 }
 
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SystemdNetworkConfig</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
@@ -496,22 +496,20 @@
         <span class='ident'>SystemdNetworkConfig</span> { <span class='ident'>path</span>: <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>path</span>) }
     }
 
+
     <span class='kw'>fn</span> <span class='ident'>is_dhcp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='kw'>let</span> <span class='ident'>conf</span> <span class='op'>=</span> <span class='ident'>Ini</span>::<span class='ident'>load_from_file</span>(<span class='self'>self</span>.<span class='ident'>path</span>.<span class='ident'>to_str</span>().<span class='ident'>expect</span>(<span class='string'>&quot;Could to parse path&quot;</span>)).<span class='ident'>unwrap</span>();
 
         <span class='kw'>let</span> <span class='ident'>section</span> <span class='op'>=</span> <span class='ident'>conf</span>.<span class='ident'>section</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;Network&quot;</span>.<span class='ident'>to_owned</span>())).<span class='ident'>unwrap</span>();
-        <span class='kw'>let</span> <span class='ident'>dhcp</span> <span class='op'>=</span> <span class='ident'>String</span>::<span class='ident'>new</span>();
-        <span class='kw'>let</span> <span class='ident'>dhcp</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>section</span>.<span class='ident'>get</span>(<span class='string'>&quot;DHCP&quot;</span>) {
-            <span class='prelude-val'>Some</span>(<span class='ident'>value</span>) <span class='op'>=&gt;</span> <span class='ident'>dhcp</span> <span class='op'>+</span> <span class='ident'>value</span>,
-            <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='ident'>String</span>::<span class='ident'>new</span>()
-        };
+
+        <span class='kw'>let</span> <span class='ident'>dhcp</span> <span class='op'>=</span> <span class='ident'>section</span>.<span class='ident'>get</span>(<span class='string'>&quot;DHCP&quot;</span>).<span class='ident'>map_or</span>(<span class='string'>&quot;&quot;</span>, <span class='op'>|</span><span class='ident'>s</span><span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>s</span>[..]);
 
         <span class='kw'>let</span> <span class='ident'>re</span> <span class='op'>=</span> <span class='ident'>Regex</span>::<span class='ident'>new</span>(<span class='string'>r&quot;(both|yes|ipv4|ipv6)&quot;</span>).<span class='ident'>unwrap</span>();
-        <span class='kw'>return</span> <span class='ident'>re</span>.<span class='ident'>is_match</span>(<span class='kw-2'>&amp;</span><span class='ident'>dhcp</span>[..])
+        <span class='kw'>return</span> <span class='ident'>re</span>.<span class='ident'>is_match</span>(<span class='ident'>dhcp</span>)
     }
 
     <span class='kw'>fn</span> <span class='ident'>get_settings_section</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>content</span> <span class='op'>=</span> <span class='ident'>read_to_string</span>(<span class='self'>self</span>.<span class='ident'>path</span>);
+        <span class='kw'>let</span> <span class='ident'>content</span> <span class='op'>=</span> <span class='ident'>read_to_string</span>(<span class='self'>self</span>.<span class='ident'>path</span>).<span class='ident'>unwrap_or</span>(<span class='string'>&quot;&quot;</span>.<span class='ident'>to_string</span>());
         <span class='kw'>let</span> <span class='ident'>re</span> <span class='op'>=</span> <span class='ident'>Regex</span>::<span class='ident'>new</span>(<span class='string'>r&quot;(?P&lt;settings_section&gt;\[Network\][^\[\0]+)&quot;</span>).<span class='ident'>unwrap</span>();
         <span class='kw'>return</span> <span class='kw'>match</span> <span class='ident'>re</span>.<span class='ident'>captures</span>(<span class='kw-2'>&amp;</span><span class='ident'>content</span>[..]) {
             <span class='prelude-val'>Some</span>(<span class='ident'>matched</span>) <span class='op'>=&gt;</span> {
@@ -523,7 +521,7 @@
         };
     }
 
-    <span class='kw'>fn</span> <span class='ident'>ip_addres</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>IPv4Network</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>ip_address</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>IPv4Network</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>content</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>get_settings_section</span>().<span class='ident'>unwrap_or</span>(<span class='ident'>String</span>::<span class='ident'>new</span>());
         <span class='comment'>//FIXME: This regex will only work on the first address</span>
         <span class='kw'>let</span> <span class='ident'>re</span> <span class='op'>=</span> <span class='ident'>Regex</span>::<span class='ident'>new</span>(<span class='string'>r&quot;Address=(?P&lt;address&gt;[^/]+)\b/\b(?P&lt;network&gt;(?:3[0-2]|[12][0-9]|[1-9]))\b&quot;</span>).<span class='ident'>unwrap</span>();
@@ -546,22 +544,20 @@
         };
     }
 
-    <span class='kw'>fn</span> <span class='ident'>dns</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>dns</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>content</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>get_settings_section</span>().<span class='ident'>unwrap_or</span>(<span class='ident'>String</span>::<span class='ident'>new</span>());
         <span class='kw'>let</span> <span class='ident'>re</span> <span class='op'>=</span> <span class='ident'>Regex</span>::<span class='ident'>new</span>(<span class='string'>r&quot;DNS=(?P&lt;address&gt;[\d.]+)&quot;</span>).<span class='ident'>unwrap</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>dns_servers</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>for</span> <span class='ident'>cap</span> <span class='kw'>in</span> <span class='ident'>re</span>.<span class='ident'>captures_iter</span>(<span class='kw-2'>&amp;</span><span class='ident'>content</span>[..]) {
-            <span class='kw'>let</span> <span class='ident'>ip_address</span> <span class='op'>=</span> <span class='ident'>ip_from_match</span>(<span class='ident'>cap</span>.<span class='ident'>name</span>(<span class='string'>&quot;address&quot;</span>),<span class='prelude-val'>Some</span>(<span class='string'>&quot;0&quot;</span>));
-            <span class='kw'>match</span> <span class='ident'>ip_address</span> {
-                <span class='prelude-val'>Some</span>(<span class='ident'>address</span>) <span class='op'>=&gt;</span> <span class='ident'>dns_servers</span>.<span class='ident'>push</span>(<span class='ident'>address</span>.<span class='ident'>ip</span>),
-                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='kw'>continue</span>
+
+        <span class='kw'>let</span> <span class='ident'>dns_servers</span> <span class='op'>=</span> <span class='ident'>re</span>.<span class='ident'>captures_iter</span>(<span class='kw-2'>&amp;</span><span class='ident'>content</span>[..]).<span class='ident'>filter_map</span>(<span class='op'>|</span><span class='ident'>cap</span><span class='op'>|</span> {
+
+            <span class='kw'>match</span> <span class='ident'>ip_from_match</span>(<span class='ident'>cap</span>.<span class='ident'>name</span>(<span class='string'>&quot;address&quot;</span>),<span class='prelude-val'>Some</span>(<span class='string'>&quot;0&quot;</span>)) {
+                <span class='prelude-val'>Some</span>(<span class='ident'>ip_struct</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>ip_struct</span>.<span class='ident'>ip</span>),
+                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
             }
 
-        }
-        <span class='kw'>if</span> <span class='ident'>dns_servers</span>.<span class='ident'>len</span>() <span class='op'>&gt;</span> <span class='number'>0</span> {
-            <span class='kw'>return</span> <span class='prelude-val'>Some</span>(<span class='ident'>dns_servers</span>)
-        }
-        <span class='prelude-val'>None</span>
+        }).<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;&gt;</span>();
+
+        <span class='ident'>dns_servers</span>
     }
 
     <span class='kw'>fn</span> <span class='ident'>enable_dhcp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>io</span>::<span class='ident'>Error</span><span class='op'>&gt;</span>  {
@@ -617,7 +613,7 @@
         <span class='macro'>unreachable</span><span class='macro'>!</span>(<span class='string'>&quot;Not implemented yet&quot;</span>);
     }
 
-    <span class='kw'>fn</span> <span class='ident'>ip_addres</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>IPv4Network</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>ip_address</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>IPv4Network</span><span class='op'>&gt;</span> {
         <span class='macro'>unreachable</span><span class='macro'>!</span>(<span class='string'>&quot;Not implemented yet&quot;</span>);
     }
 
@@ -629,7 +625,7 @@
         <span class='macro'>unreachable</span><span class='macro'>!</span>(<span class='string'>&quot;Not implemented yet&quot;</span>);
     }
 
-    <span class='kw'>fn</span> <span class='ident'>dns</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>dns</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Ipv4Addr</span><span class='op'>&gt;</span> {
        <span class='macro'>unreachable</span><span class='macro'>!</span>(<span class='string'>&quot;Not implemented yet&quot;</span>);
     }
 
@@ -690,7 +686,7 @@
 <span class='kw'>fn</span> <span class='ident'>read_static_config_systemd</span>() {
     <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>SystemdNetworkConfig</span>::<span class='ident'>new</span>(<span class='string'>&quot;./tests/eth0.network.static&quot;</span>);
     <span class='kw'>let</span> <span class='ident'>comparitor_ip</span> <span class='op'>=</span> <span class='ident'>Ipv4Addr</span>::<span class='ident'>from_str</span>(<span class='string'>&quot;192.168.1.3&quot;</span>).<span class='ident'>unwrap</span>();
-    <span class='kw'>let</span> <span class='ident'>ip_address</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>ip_addres</span>().<span class='ident'>expect</span>(<span class='string'>&quot;No ip address found&quot;</span>);
+    <span class='kw'>let</span> <span class='ident'>ip_address</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>ip_address</span>().<span class='ident'>expect</span>(<span class='string'>&quot;No ip address found&quot;</span>);
     <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>ip_address</span>.<span class='ident'>ip</span> <span class='op'>==</span> <span class='ident'>comparitor_ip</span>);
     <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>ip_address</span>.<span class='ident'>prefix</span> <span class='op'>==</span> <span class='number'>24</span>);
 
@@ -701,14 +697,14 @@
 <span class='attribute'>#[<span class='ident'>test</span>]</span>
 <span class='kw'>fn</span> <span class='ident'>read_dns_config_systemd</span>() {
     <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>SystemdNetworkConfig</span>::<span class='ident'>new</span>(<span class='string'>&quot;./tests/eth0.network.static_with_dns&quot;</span>);
-    <span class='kw'>let</span> <span class='ident'>dns_servers</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>dns</span>().<span class='ident'>unwrap_or</span>(<span class='ident'>Vec</span>::<span class='ident'>new</span>());
+    <span class='kw'>let</span> <span class='ident'>dns_servers</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>dns</span>();
     <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dns_servers</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>4</span>);
 }
 
 <span class='attribute'>#[<span class='ident'>test</span>]</span>
 <span class='kw'>fn</span> <span class='ident'>read_no_dns_config_systemd</span>() {
     <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>SystemdNetworkConfig</span>::<span class='ident'>new</span>(<span class='string'>&quot;./tests/eth0.network.static&quot;</span>);
-    <span class='kw'>let</span> <span class='ident'>dns_servers</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>dns</span>().<span class='ident'>unwrap_or</span>(<span class='ident'>Vec</span>::<span class='ident'>new</span>());
+    <span class='kw'>let</span> <span class='ident'>dns_servers</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>dns</span>();
     <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dns_servers</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span>);
 }
 
@@ -732,7 +728,7 @@
     <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>config</span>.<span class='ident'>is_dhcp</span>() <span class='op'>==</span> <span class='boolval'>false</span>);
 
     <span class='kw'>let</span> <span class='ident'>comparitor_ip</span> <span class='op'>=</span> <span class='ident'>Ipv4Addr</span>::<span class='ident'>from_str</span>(<span class='string'>&quot;192.168.1.3&quot;</span>).<span class='ident'>unwrap</span>();
-    <span class='kw'>let</span> <span class='ident'>ip_address</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>ip_addres</span>().<span class='ident'>expect</span>(<span class='string'>&quot;No ip address found&quot;</span>);
+    <span class='kw'>let</span> <span class='ident'>ip_address</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>ip_address</span>().<span class='ident'>expect</span>(<span class='string'>&quot;No ip address found&quot;</span>);
     <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>ip_address</span>.<span class='ident'>ip</span> <span class='op'>==</span> <span class='ident'>comparitor_ip</span>);
     <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>ip_address</span>.<span class='ident'>prefix</span> <span class='op'>==</span> <span class='number'>24</span>);
 
